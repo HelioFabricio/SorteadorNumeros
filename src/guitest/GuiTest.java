@@ -41,10 +41,8 @@ public class GuiTest extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
         jButton1 = new javax.swing.JButton();
-        jDescricao = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
         jGerarNumeros = new javax.swing.JButton();
         jLabel5 = new javax.swing.JLabel();
@@ -90,22 +88,9 @@ public class GuiTest extends javax.swing.JFrame {
             }
         });
 
-        jDescricao.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jDescricaoActionPerformed(evt);
-            }
-        });
-        jDescricao.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                jDescricaoKeyTyped(evt);
-            }
-        });
-
         jLabel2.setText("Nome:");
 
         jLabel3.setText("Numero:");
-
-        jLabel4.setText("Descrição:");
 
         jLabel6.setText("Numeros Aleatorios: ");
 
@@ -129,18 +114,15 @@ public class GuiTest extends javax.swing.JFrame {
                             .addGroup(layout.createSequentialGroup()
                                 .addContainerGap()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                        .addGroup(layout.createSequentialGroup()
-                                            .addComponent(jLabel2)
-                                            .addGap(35, 35, 35))
-                                        .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.LEADING))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jLabel2)
+                                        .addGap(35, 35, 35))
                                     .addGroup(layout.createSequentialGroup()
                                         .addComponent(jLabel3)
                                         .addGap(23, 23, 23)))
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addComponent(jNumero, javax.swing.GroupLayout.DEFAULT_SIZE, 60, Short.MAX_VALUE)
-                                    .addComponent(jNome)
-                                    .addComponent(jDescricao)))
+                                    .addComponent(jNome)))
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(29, 29, 29)
                                 .addComponent(jButton1)))
@@ -175,10 +157,6 @@ public class GuiTest extends javax.swing.JFrame {
                             .addComponent(jNumero, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel3))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jDescricao, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel4))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButton1))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(36, 36, 36)
@@ -200,23 +178,18 @@ public class GuiTest extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         
         if(contador > quantidadeMaximaParticipantes-1){
-            JOptionPane.showMessageDialog(null, "Este é um erro!", "Erro", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Numero ", "Erro", JOptionPane.ERROR_MESSAGE);
         } else{
             String idString = String.valueOf(id);
-            jobsModel.addRow(new String[]{idString, jNome.getText(), jNumero.getText(), jDescricao.getText()});
+            jobsModel.addRow(new String[]{idString, jNome.getText(), jNumero.getText()});
             id++;
             contador++;
         
             jNome.setText("");
             jNumero.setText("");
-            jDescricao.setText("");
         }
         
     }//GEN-LAST:event_jButton1ActionPerformed
-
-    private void jDescricaoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jDescricaoActionPerformed
-        
-    }//GEN-LAST:event_jDescricaoActionPerformed
 
     private void jNumeroKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jNumeroKeyTyped
         String permitido = "0987654321";
@@ -226,16 +199,6 @@ public class GuiTest extends javax.swing.JFrame {
             evt.consume();
         }
     }//GEN-LAST:event_jNumeroKeyTyped
-
-    private void jDescricaoKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jDescricaoKeyTyped
-        String permitido = "0987654321";
-        char entrada = evt.getKeyChar();
-        
-        if(permitido.contains(String.valueOf(entrada))){
-            evt.consume();
-        }
-        
-    }//GEN-LAST:event_jDescricaoKeyTyped
 
     private void jNomeKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jNomeKeyTyped
         String permitido = "0987654321";
@@ -328,12 +291,10 @@ public class GuiTest extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
-    private javax.swing.JTextField jDescricao;
     private javax.swing.JButton jGerarNumeros;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JTextField jNome;
