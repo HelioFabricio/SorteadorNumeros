@@ -1,8 +1,18 @@
 package guitest;
 
 import geradores.GeradorDeNumeros;
+import java.awt.Desktop;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
@@ -15,15 +25,28 @@ public class GuiTest extends javax.swing.JFrame {
     private int contador = 0;
     protected int quantidadeMaximaParticipantes = 4;
     private int quantidadeNumerosRandomicos = 5;    
+    private PrintWriter writer;
+    private BufferedReader br;
     
     
-    public GuiTest() {
+    public GuiTest() throws FileNotFoundException, IOException {
         initComponents();
         
         jobsModel = new DefaultTableModel(new String[] {"id", "name", "number", "num Prox", "difference"}, 0);
         jTable1.setModel(jobsModel);
         gerador = new GeradorDeNumeros();
         listNumerosAleatorios = new ArrayList<>();
+        try {
+            FileWriter fileWriter = new FileWriter("meuBanco.txt", true);
+            writer = new PrintWriter(fileWriter, true);
+            
+            br = new BufferedReader(new FileReader("meuBanco.txt"));
+        } catch (IOException ex) {
+            Logger.getLogger(GuiTest.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        
+        
     }
 
     /**
@@ -176,7 +199,6 @@ public class GuiTest extends javax.swing.JFrame {
     }//GEN-LAST:event_jNumeroActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        
         if(contador > quantidadeMaximaParticipantes-1){
             JOptionPane.showMessageDialog(null, "Numero ", "Erro", JOptionPane.ERROR_MESSAGE);
         } else{
@@ -184,13 +206,25 @@ public class GuiTest extends javax.swing.JFrame {
             jobsModel.addRow(new String[]{idString, jNome.getText(), jNumero.getText()});
             id++;
             contador++;
-        
+            
+            gravarArquivo(idString, jNome.getText(), jNumero.getText());
+            
             jNome.setText("");
             jNumero.setText("");
+            
         }
-        
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    public void lerArquivo(){
+        
+    }
+    public void gravarArquivo(String id, String nome, String numero){
+        String idString = id;
+        String nomeString = nome;
+        String numeroString = numero;
+
+        writer.println("ID: {" + idString + "}\nNome: {"+ nomeString +"}\nNumero: {" + numeroString + "}\n");
+    }
     private void jNumeroKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jNumeroKeyTyped
         String permitido = "0987654321";
         char entrada = evt.getKeyChar();
@@ -284,7 +318,13 @@ public class GuiTest extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new GuiTest().setVisible(true);
+                try {
+                    new GuiTest().setVisible(true);
+                } catch (FileNotFoundException ex) {
+                    Logger.getLogger(GuiTest.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (IOException ex) {
+                    Logger.getLogger(GuiTest.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
     }
