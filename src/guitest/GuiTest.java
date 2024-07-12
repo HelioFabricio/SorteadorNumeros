@@ -9,12 +9,21 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.table.TableModel;
 
 public class GuiTest extends javax.swing.JFrame {
 
@@ -27,15 +36,18 @@ public class GuiTest extends javax.swing.JFrame {
     private int quantidadeNumerosRandomicos = 5;    
     private PrintWriter writer;
     private BufferedReader br;
+    private Conexao conec;
     
     
     public GuiTest() throws FileNotFoundException, IOException {
         initComponents();
-        
+
         jobsModel = new DefaultTableModel(new String[] {"id", "name", "number", "num Prox", "difference"}, 0);
         jTable1.setModel(jobsModel);
         gerador = new GeradorDeNumeros();
         listNumerosAleatorios = new ArrayList<>();
+        conec = new Conexao();
+        
         try {
             FileWriter fileWriter = new FileWriter("meuBanco.txt", true);
             writer = new PrintWriter(fileWriter, true);
@@ -63,12 +75,14 @@ public class GuiTest extends javax.swing.JFrame {
         jNumero = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
-        jButton1 = new javax.swing.JButton();
+        jButtonCadastro = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
-        jGerarNumeros = new javax.swing.JButton();
+        jButtonGerarNumeros = new javax.swing.JButton();
         jLabel5 = new javax.swing.JLabel();
+        jButtonConectarBanco = new javax.swing.JButton();
+        jButtonSincronizarTabela = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -104,10 +118,10 @@ public class GuiTest extends javax.swing.JFrame {
         ));
         jScrollPane1.setViewportView(jTable1);
 
-        jButton1.setText("Cadrastrar");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        jButtonCadastro.setText("Cadrastrar");
+        jButtonCadastro.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                jButtonCadastroActionPerformed(evt);
             }
         });
 
@@ -117,14 +131,26 @@ public class GuiTest extends javax.swing.JFrame {
 
         jLabel6.setText("Numeros Aleatorios: ");
 
-        jGerarNumeros.setText("Gerar");
-        jGerarNumeros.addActionListener(new java.awt.event.ActionListener() {
+        jButtonGerarNumeros.setText("Gerar");
+        jButtonGerarNumeros.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jGerarNumerosActionPerformed(evt);
+                jButtonGerarNumerosActionPerformed(evt);
             }
         });
 
-        jLabel5.setText("jLabel5");
+        jButtonConectarBanco.setText("Conectar Banco");
+        jButtonConectarBanco.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonConectarBancoActionPerformed(evt);
+            }
+        });
+
+        jButtonSincronizarTabela.setText("Sincronizar Tabela");
+        jButtonSincronizarTabela.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonSincronizarTabelaActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -137,18 +163,15 @@ public class GuiTest extends javax.swing.JFrame {
                             .addGroup(layout.createSequentialGroup()
                                 .addContainerGap()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(jLabel2)
-                                        .addGap(35, 35, 35))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(jLabel3)
-                                        .addGap(23, 23, 23)))
+                                    .addComponent(jLabel2)
+                                    .addComponent(jLabel3))
+                                .addGap(25, 25, 25)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addComponent(jNumero, javax.swing.GroupLayout.DEFAULT_SIZE, 60, Short.MAX_VALUE)
                                     .addComponent(jNome)))
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(29, 29, 29)
-                                .addComponent(jButton1)))
+                                .addComponent(jButtonCadastro)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 433, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
@@ -161,8 +184,13 @@ public class GuiTest extends javax.swing.JFrame {
                         .addComponent(jLabel5))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(186, 186, 186)
-                        .addComponent(jGerarNumeros)))
-                .addContainerGap(22, Short.MAX_VALUE))
+                        .addComponent(jButtonGerarNumeros))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(64, 64, 64)
+                        .addComponent(jButtonConectarBanco)
+                        .addGap(101, 101, 101)
+                        .addComponent(jButtonSincronizarTabela)))
+                .addContainerGap(14, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -180,15 +208,19 @@ public class GuiTest extends javax.swing.JFrame {
                             .addComponent(jNumero, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel3))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton1))
+                        .addComponent(jButtonCadastro))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(36, 36, 36)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6)
                     .addComponent(jLabel5))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jGerarNumeros)
-                .addContainerGap(41, Short.MAX_VALUE))
+                .addComponent(jButtonGerarNumeros)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 7, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButtonConectarBanco)
+                    .addComponent(jButtonSincronizarTabela))
+                .addContainerGap())
         );
 
         pack();
@@ -198,7 +230,7 @@ public class GuiTest extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_jNumeroActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void jButtonCadastroActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCadastroActionPerformed
         if(contador > quantidadeMaximaParticipantes-1){
             JOptionPane.showMessageDialog(null, "Numero ", "Erro", JOptionPane.ERROR_MESSAGE);
         } else{
@@ -207,17 +239,48 @@ public class GuiTest extends javax.swing.JFrame {
             id++;
             contador++;
             
+            try {
+                // Manda pro banco de dados Jnome e Numero
+                conec.cadastrarUsuario(jNome.getText(), Integer.parseInt(jNumero.getText()), 0, 0);
+            } catch (SQLException ex) {
+                Logger.getLogger(GuiTest.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (ClassNotFoundException ex) {
+                Logger.getLogger(GuiTest.class.getName()).log(Level.SEVERE, null, ex);
+            }
             gravarArquivo(idString, jNome.getText(), jNumero.getText());
             
             jNome.setText("");
             jNumero.setText("");
+        }
+    }//GEN-LAST:event_jButtonCadastroActionPerformed
+
+    public void registrarBanco(String nome, int numero) throws SQLException{
+        PreparedStatement stmt = con.prepareStatement("INSERT INTO `tb_nunca_mexa`(`id`, `name`) VALUES ("+nome+" ,"+numero+" );");
+        
+        try {
+            
+        } catch (Exception e) {
             
         }
-    }//GEN-LAST:event_jButton1ActionPerformed
-
-    public void lerArquivo(){
-        
     }
+    public static Connection con = null;
+    public void conectarBanco(){
+        System.out.println("Conectando Banco...");
+        
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            con = DriverManager.getConnection("jdbc:mysql://127.0.0.1/nunca_mexa_db", "root","");
+            System.out.println("Conectado");
+            
+        } catch (ClassNotFoundException ex) {
+            System.out.println("Classe não encontrada, adicione o driver nas bibliotecas.");
+            Logger.getLogger(Conexao.class.getName()).log(Level.SEVERE, null, ex);
+        } catch(SQLException e){
+            System.out.println(e);
+            throw new RuntimeException(e);
+        }
+    }
+    
     public void gravarArquivo(String id, String nome, String numero){
         String idString = id;
         String nomeString = nome;
@@ -243,7 +306,7 @@ public class GuiTest extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jNomeKeyTyped
 
-    private void jGerarNumerosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jGerarNumerosActionPerformed
+    private void jButtonGerarNumerosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonGerarNumerosActionPerformed
         listNumerosAleatorios.removeAll(listNumerosAleatorios);
         
         for(int i = 0; i < quantidadeNumerosRandomicos; i++){
@@ -252,7 +315,6 @@ public class GuiTest extends javax.swing.JFrame {
         String numerosAleatorios = String.valueOf(listNumerosAleatorios);
         
         jLabel5.setText(numerosAleatorios);
-        
         
         for(int i = 0; i < jTable1.getRowCount(); i++){
             int diferenca = 0;
@@ -265,7 +327,44 @@ public class GuiTest extends javax.swing.JFrame {
             jTable1.setValueAt(numeroMaisProximo, i, 3);
         }
         
-    }//GEN-LAST:event_jGerarNumerosActionPerformed
+    }//GEN-LAST:event_jButtonGerarNumerosActionPerformed
+
+    public void atualizarTabelaBanco(){
+        try {
+            conec.checarConectadoConectar();
+            
+            PreparedStatement stmt = con.prepareStatement("select * from tb_nunca_mexa");
+            ResultSet rs = stmt.executeQuery();
+            
+            while(rs.next()){
+                String name = rs.getNString("name");
+                Integer number = rs.getInt("number");
+                Integer numProximo = rs.getInt("num_prox");
+                Integer difference = rs.getInt("difference");
+                
+                
+                String[] arrayInfoPessoa = {name, number.toString(), numProximo.toString(), difference.toString()};
+                jobsModel.addRow(arrayInfoPessoa);
+            }
+            rs.close();
+            stmt.close();
+        } catch (Exception e) {
+            System.out.println("Erro");
+        }
+    }
+    
+    private void limparTabela(){
+        
+    }
+    private void jButtonSincronizarTabelaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSincronizarTabelaActionPerformed
+        atualizarTabelaBanco();
+        
+        
+    }//GEN-LAST:event_jButtonSincronizarTabelaActionPerformed
+
+    private void jButtonConectarBancoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonConectarBancoActionPerformed
+        conectarBanco();
+    }//GEN-LAST:event_jButtonConectarBancoActionPerformed
 
     public int buscarNumeroProximo(int numeroReferencia){
     int numeroMaisProximo = listNumerosAleatorios.get(0); // Começa com o primeiro número da lista
@@ -330,8 +429,10 @@ public class GuiTest extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jGerarNumeros;
+    private javax.swing.JButton jButtonCadastro;
+    private javax.swing.JButton jButtonConectarBanco;
+    private javax.swing.JButton jButtonGerarNumeros;
+    private javax.swing.JButton jButtonSincronizarTabela;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
